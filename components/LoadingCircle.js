@@ -1,8 +1,8 @@
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 
-export default function LoadingCircle() {
+export default function LoadingCircle({backgroundColor}) {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: backgroundColor}]}>
       <ActivityIndicator size="large" color="blue" />
     </View>
   );

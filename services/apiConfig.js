@@ -1,5 +1,6 @@
 import {BASE_API_URL} from '@env'
 import axios from 'axios'
+import { useUserInfoStorage } from '../store/authStore'
 
 const privateApiClient = axios.create({
   baseURL: BASE_API_URL,
@@ -14,7 +15,7 @@ const publicApiClient = axios.create({
 // Private request interceptor to attach token
 privateApiClient.interceptors.request.use(
   (config) => {
-    const { token } = useTokenInfoStorage.getState()
+    const { token } = useUserInfoStorage.getState()
     if (token) config.headers.Authorization = `Bearer ${token}`
     return config
   },
@@ -25,6 +26,11 @@ privateApiClient.interceptors.request.use(
 privateApiClient.interceptors.response.use(
   (response) => response.data,
   async (error) => {
+    const errorData = error.response?.data
+    if (errorData.message === 'TOKEN_EXPIRED'){
+      const { clearAllStorage} = useUserInfoStorage.getState()
+      await clearAllStorage()
+    }
     return Promise.reject(errorData?.message || 'An error occurred')
   }
 )
