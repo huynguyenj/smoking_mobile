@@ -61,7 +61,7 @@ export default function TabNavigator() {
       <Tab.Screen name="Cigarettes" component={CigaretteScreen} />
       <Tab.Screen name="Blogs" component={BlogScreen} />
       <Tab.Screen name="Ranking" component={RankScreen} />
-      <Tab.Screen name="Profile" component={Profile} />
+      <Tab.Screen options={{headerShown: false}} name="Profile" component={Profile} />
     </Tab.Navigator>
   )
 }

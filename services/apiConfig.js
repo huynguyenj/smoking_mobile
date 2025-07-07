@@ -14,8 +14,8 @@ const publicApiClient = axios.create({
 
 // Private request interceptor to attach token
 privateApiClient.interceptors.request.use(
-  (config) => {
-    const { token } = useUserInfoStorage.getState()
+  async (config) => {
+    const token  = await useUserInfoStorage.getState().getToken()
     if (token) config.headers.Authorization = `Bearer ${token}`
     return config
   },
@@ -28,8 +28,8 @@ privateApiClient.interceptors.response.use(
   async (error) => {
     const errorData = error.response?.data
     if (errorData.message === 'TOKEN_EXPIRED'){
-      const { clearAllStorage} = useUserInfoStorage.getState()
-      await clearAllStorage()
+      const clearAllStorage = useUserInfoStorage.getState().clearAllStorage()
+      await clearAllStorage
     }
     return Promise.reject(errorData?.message || 'An error occurred')
   }

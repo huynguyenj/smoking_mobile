@@ -36,6 +36,7 @@ const privateApiService = {
 
   getMemberships: () =>
     apiService.privateApiClient.get('/v1/users/membership'),
+  getMemberShipInfo: (membershipId) => apiService.privateApiClient.get(`/v1/users/membership/detail/${membershipId}`),
 
   createBlog: (formData) =>
     apiService.privateApiClient.post('/v1/users/blog', formData),
@@ -85,7 +86,9 @@ const privateApiService = {
     apiService.privateApiClient.post('v1/users/profile', passwordData),
 
   changeAvatar: (avatar) =>
-    apiService.privateApiClient.put('v1/users/profile/avatar', avatar)
+    apiService.privateApiClient.put('v1/users/profile/avatar', avatar),
+  getAchievement: () => apiService.privateApiClient.get('/v1/users/achievement'),
+  getUserCurrentRank: () => apiService.privateApiClient.get('/v1/users/rank')
 }
 
 export default privateApiService

@@ -4,11 +4,18 @@ import TabNavigator from './TabNavigator'
 import LoginScreen from '../screens/auth/LoginScreen'
 import RegisterScreen from '../screens/auth/RegisterScreen'
 import { useUserInfoStorage } from '../store/authStore'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 const Stack = createNativeStackNavigator()
 export default function StackNavigator() {
   const token = useUserInfoStorage((state) => state.token)
+
+  useEffect(() => {
+    const loadToken = async () => {
+      await useUserInfoStorage.getState().getToken()
+    }
+    loadToken()
+  }, [])
   return (
     <Stack.Navigator>
       {token ? 

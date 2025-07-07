@@ -57,7 +57,8 @@ export const useUserInfoStorage = create((set, get) => ({
   clearAllStorage: async () => {
     try {
       await AsyncStorage.clear();
-      set({ token: null, userInfo: null });
+      set((state) => ({...state, token: null, userInfo: null}));
+      await AsyncStorage.clear()
     } catch (e) {
       console.error('Error clearing storage:', e);
     }
