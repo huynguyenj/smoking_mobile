@@ -11,6 +11,7 @@ const publicApiClient = axios.create({
   baseURL: BASE_API_URL,
   withCredentials: true
 })
+console.log(BASE_API_URL);
 
 // Private request interceptor to attach token
 privateApiClient.interceptors.request.use(
