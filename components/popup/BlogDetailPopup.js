@@ -16,6 +16,8 @@ import CommentCard from "../../components/comment/CommentCard";
 import CommentInputBar from "../../components/comment/CommentInputBar";
 import CommentSortBar from "../../components/comment/CommentSortBar";
 import ImageViewing from "react-native-image-viewing";
+import RenderHtml from "react-native-render-html";
+import { useWindowDimensions } from "react-native";
 export default function BlogDetailPopup({ visible, onClose, blog }) {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
@@ -31,6 +33,7 @@ export default function BlogDetailPopup({ visible, onClose, blog }) {
 
   const limit = 5;
 
+  const { width } = useWindowDimensions();
   useEffect(() => {
     if (visible && blog?._id && shouldRefresh) {
       resetComments();
@@ -166,7 +169,11 @@ export default function BlogDetailPopup({ visible, onClose, blog }) {
             <Text style={styles.date}>
               {new Date(blog.create_date).toLocaleDateString()}
             </Text>
-            <Text style={styles.content}>{blog.content}</Text>
+            <RenderHtml
+              contentWidth={width}
+              source={{ html: blog.content }}
+              baseStyle={styles.content}
+            />
 
             <CommentSortBar sortOrder={sortOrder} onChange={handleSortChange} />
 

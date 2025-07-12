@@ -17,7 +17,7 @@ export default function CommentInputBar({
     <View style={styles.commentBar}>
       <TextInput
         style={styles.input}
-        placeholder="Viết bình luận công khai..."
+        placeholder="Comment here..."
         value={value}
         onChangeText={onChangeText}
         multiline
@@ -27,7 +27,7 @@ export default function CommentInputBar({
         onPress={onSend}
         disabled={sending}
       >
-        <Text style={styles.sendText}>{sending ? "..." : "Gửi"}</Text>
+        <Text style={styles.sendText}>{sending ? "..." : "Send"}</Text>
       </TouchableOpacity>
     </View>
   );

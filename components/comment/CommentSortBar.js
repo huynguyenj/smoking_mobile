@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 export default function CommentSortBar({ sortOrder, onChange }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Bình luận</Text>
+      <Text style={styles.label}>Comment</Text>
       <View style={styles.sortContainer}>
         <TouchableOpacity onPress={() => onChange("newest")}>
           <Text
@@ -13,7 +13,7 @@ export default function CommentSortBar({ sortOrder, onChange }) {
               sortOrder === "newest" && styles.selectedSort,
             ]}
           >
-            Mới nhất
+            Newest
           </Text>
         </TouchableOpacity>
         <Text style={styles.divider}>|</Text>
@@ -24,7 +24,7 @@ export default function CommentSortBar({ sortOrder, onChange }) {
               sortOrder === "oldest" && styles.selectedSort,
             ]}
           >
-            Cũ nhất
+            Oldest
           </Text>
         </TouchableOpacity>
       </View>

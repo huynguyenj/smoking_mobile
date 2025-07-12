@@ -1,3 +1,4 @@
+import { create } from "zustand";
 import { apiService } from "./apiConfig";
 
 const privateApiService = {
@@ -91,6 +92,26 @@ const privateApiService = {
       limit,
       sort,
     }),
+
+  getAllCigarettes: (page = 1, limit = 5) =>
+    apiService.privateApiClient.post("/v1/users/cigarettes/pagination", {
+      page,
+      limit,
+    }),
+
+  createCigarette: (formData) =>
+    apiService.privateApiClient.post("/v1/users/cigarette", formData),
+
+  getCiggrateDetail: (id) =>
+    apiService.privateApiClient.get(`/v1/users/cigarette/${id}`),
+
+  updateCigarette: (cigaretteId, formData) =>
+    apiService.privateApiClient.put(
+      `/v1/users/cigarette/${cigaretteId}`,
+      formData
+    ),
+  deleteCigarette: (cigaretteId) =>
+    apiService.privateApiClient.delete(`/v1/users/cigarette/${cigaretteId}`),
 
   getMemberShipInfo: (membershipId) =>
     apiService.privateApiClient.get(

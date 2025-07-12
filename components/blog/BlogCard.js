@@ -1,5 +1,13 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+} from "react-native";
+import RenderHtml from 'react-native-render-html';
 import BlogCardMenu from "./BlogCardMenu";
 
 export default function BlogCard({
@@ -9,6 +17,8 @@ export default function BlogCard({
   onUpdate,
   showMyBlogs,
 }) {
+  const { width } = useWindowDimensions();
+
   return (
     <View style={styles.card}>
       {blog.image_url?.length > 0 && (
@@ -29,7 +39,6 @@ export default function BlogCard({
 
       <View style={styles.titleRow}>
         <Text style={styles.title}>{blog.title}</Text>
-
         {showMyBlogs && (
           <BlogCardMenu
             onUpdate={() => onUpdate(blog)}
@@ -39,9 +48,12 @@ export default function BlogCard({
         )}
       </View>
 
-      <Text style={styles.content} numberOfLines={2}>
-        {blog.content}
-      </Text>
+      <RenderHtml
+        contentWidth={width}
+        source={{ html: blog.content || "" }}
+        baseStyle={styles.content}
+      />
+
       <Text style={styles.date}>
         {new Date(blog.create_date).toLocaleDateString()}
       </Text>
@@ -60,14 +72,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
+  imageWrapper: {
+    position: "relative",
+  },
   image: {
     width: "100%",
     height: 180,
     borderRadius: 8,
     marginBottom: 8,
-  },
-  imageWrapper: {
-    position: "relative",
   },
   overlay: {
     position: "absolute",
@@ -97,7 +109,9 @@ const styles = StyleSheet.create({
   },
   content: {
     fontSize: 14,
-    color: "#555",
+    color: "#444",
+    lineHeight: 20,
+    marginTop: 4,
   },
   date: {
     marginTop: 6,
