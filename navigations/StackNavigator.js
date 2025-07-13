@@ -9,13 +9,6 @@ import { useEffect, useState } from 'react'
 const Stack = createNativeStackNavigator()
 export default function StackNavigator() {
   const token = useUserInfoStorage((state) => state.token)
-
-  useEffect(() => {
-    const loadToken = async () => {
-      await useUserInfoStorage.getState().getToken()
-    }
-    loadToken()
-  }, [])
   return (
     <Stack.Navigator>
       {token ? 

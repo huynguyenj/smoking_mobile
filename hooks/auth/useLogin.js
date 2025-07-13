@@ -6,14 +6,13 @@ import { useNavigation } from '@react-navigation/native'
 
 export default function useLogin() {
   const {isLoading, setIsLoading} = useLoading()
-  const {storeToken, storeUserInfo} = useUserInfoStorage.getState()
-  const navigate = useNavigation()
+  const {setToken, setUserInfo} = useUserInfoStorage.getState()
   const handleLogin = async (email, password) => {
       try {
         setIsLoading(true)
         const response = await publicApiService.login({email, password})
-        storeToken(response.data.accessToken)
-        storeUserInfo(response.data)
+        setToken(response.data.accessToken)
+        setUserInfo(response.data)
         Toast.show({
                   type: 'success',
                   text1: 'Login Successful',
