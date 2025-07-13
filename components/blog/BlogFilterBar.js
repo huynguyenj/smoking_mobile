@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 export default function BlogFilterBar({ showMyBlogs, onChange }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Bài viết</Text>
+      <Text style={styles.label}>Blog</Text>
       <View style={styles.filterContainer}>
         <TouchableOpacity onPress={() => onChange(true)}>
           <Text

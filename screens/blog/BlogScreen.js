@@ -188,14 +188,14 @@ export default function BlogScreen() {
       <SearchBar
         value={searchTerm}
         onChange={setSearchTerm}
-        placeholder="Tìm blog theo tiêu đề..."
+        placeholder="Search blogs..."
       />
 
       <TouchableOpacity
         onPress={() => setShowCreatePopup(true)}
         style={styles.createBar}
       >
-        <Text style={styles.placeholder}>Bạn đang nghĩ gì?</Text>
+        <Text style={styles.placeholder}>What do you want to share?</Text>
         <FontAwesome name="image" size={20} color="#ccc" />
       </TouchableOpacity>
 

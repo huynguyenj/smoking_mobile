@@ -37,9 +37,7 @@ export default function CigaretteDetailPopup({
           {loading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#28a745" />
-              <Text style={{ marginTop: 12, color: "#666" }}>
-                Đang tải dữ liệu...
-              </Text>
+              <Text style={{ marginTop: 12, color: "#666" }}>Loading...</Text>
             </View>
           ) : (
             <>

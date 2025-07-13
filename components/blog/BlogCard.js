@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   useWindowDimensions,
 } from "react-native";
-import RenderHtml from 'react-native-render-html';
+import RenderHtml from "react-native-render-html";
 import BlogCardMenu from "./BlogCardMenu";
 
 export default function BlogCard({

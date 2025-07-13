@@ -103,28 +103,28 @@ export default function UpdateBlogPopup({ visible, onClose, onSubmit, blog }) {
           <TouchableOpacity onPress={onClose} style={styles.iconLeft}>
             <Text style={styles.backText}>←</Text>
           </TouchableOpacity>
-          <Text style={styles.headerText}>Cập nhật bài viết</Text>
+          <Text style={styles.headerText}>Edit Blog</Text>
           <TouchableOpacity
             onPress={handleUpdate}
             style={styles.iconRight}
             disabled={loadingPost}
           >
             <Text style={[styles.postBtn, loadingPost && { opacity: 0.5 }]}>
-              {loadingPost ? "Đang cập nhật..." : "Cập nhật"}
+              {loadingPost ? "Loading..." : "Update"}
             </Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
           <TextInput
-            placeholder="Tiêu đề"
+            placeholder="Title"
             value={title}
             onChangeText={setTitle}
             style={styles.input}
             placeholderTextColor="#888"
           />
           <TextInput
-            placeholder="Nội dung..."
+            placeholder="Content"
             value={content}
             onChangeText={setContent}
             multiline

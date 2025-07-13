@@ -45,7 +45,7 @@ export default function CigaretteScreen() {
       setPage(pageToLoad);
       setHasMore(pageToLoad < totalPages);
     } catch (err) {
-      console.error("❌ Lỗi lấy thuốc lá:", err);
+      console.error("❌ Failed to fetch cigarettes:", err);
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -65,7 +65,7 @@ export default function CigaretteScreen() {
     } catch (err) {
       const message =
         err?.response?.data?.message || err.message || "Unknown error";
-      console.error("❌ Lỗi tạo bản ghi:", message);
+      console.error("❌ Failed to create:", message);
       alert(`❌ Failed to create: ${message}`);
     }
   };
@@ -137,14 +137,14 @@ export default function CigaretteScreen() {
       if (res?.data) {
         setSelectedItem(res.data);
       } else {
-        alert("Không tìm thấy chi tiết bản ghi.");
+        alert("No data returned from server.");
         setShowDetailPopup(false);
       }
     } catch (err) {
       const message =
-        err?.response?.data?.message || err.message || "Lỗi không xác định";
-      console.error("❌ Lỗi lấy chi tiết bản ghi:", message);
-      alert(`❌ Lỗi lấy chi tiết: ${message}`);
+        err?.response?.data?.message || err.message || "Unknown error";
+      console.error("❌ Error getting detail:", message);
+      alert(`❌ Failed to get detail: ${message}`);
       setShowDetailPopup(false);
     } finally {
       setLoadingDetail(false);
@@ -173,7 +173,7 @@ export default function CigaretteScreen() {
       <SearchBar
         value={searchTerm}
         onChange={setSearchTerm}
-        placeholder="Tìm thuốc lá..."
+        placeholder="Search cigarettes..."
       />
 
       <TouchableOpacity
@@ -203,7 +203,7 @@ export default function CigaretteScreen() {
           onEndReached={handleEndReached}
           onEndReachedThreshold={0.5}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>Không có dữ liệu</Text>
+            <Text style={styles.emptyText}>No cigarettes found</Text>
           }
           ListFooterComponent={
             loadingMore && <ActivityIndicator size="small" color="#555" />
