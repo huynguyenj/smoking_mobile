@@ -71,6 +71,7 @@ return (
           </TouchableOpacity>
         </View>
         <Text style={{fontSize:15}}>{userInfo.email}</Text>
+        <Text style={{fontSize:15, fontWeight:'bold'}}>{userInfo.role}</Text>
         </View>
       </View>
       <View style={profileStyle.achievementContainer}>

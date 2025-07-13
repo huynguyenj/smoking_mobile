@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import privateApiService from "../../services/userPrivateApi";
 import Pagination from "../../components/pagination-bttn/Pagination";
+import { useFocusEffect } from "@react-navigation/native";
+import LoadingCircle from '../../components/LoadingCircle'
 
 export default function RankScreen() {
   const [rankList, setRankList] = useState([]);
@@ -28,7 +30,7 @@ export default function RankScreen() {
     isRefresh = false
   ) => {
     try {
-      if (!isRefresh) setLoading(true);
+      setLoading(true)
 
       const res = await privateApiService.getRankingList(
         pageNum,
@@ -110,10 +112,11 @@ export default function RankScreen() {
     );
   };
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     fetchRanks(1, rowsPerPage, sort, true);
-  }, [rowsPerPage, sort]);
+  }, []))
 
+  if (loading) return <LoadingCircle/>
   return (
     <View style={styles.container}>
       <Text style={styles.title}>🏆 Leaderboard</Text>

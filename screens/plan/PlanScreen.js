@@ -11,6 +11,7 @@ import {
   RefreshControl,
   ActivityIndicator,
   Alert,
+  TouchableOpacity,
 } from "react-native";
 import privateApiService from "../../services/userPrivateApi";
 import { useCallback, useEffect, useState } from "react";
@@ -21,6 +22,8 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import moment from "moment";
 import Toast from "react-native-toast-message";
 import Pagination from "../../components/pagination-bttn/Pagination";
+import LoadingCircle from "../../components/LoadingCircle";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function PlanScreen() {
   const [planList, setPlanList] = useState([]);
@@ -63,6 +66,7 @@ export default function PlanScreen() {
 
   const getPlanDetail = async (id) => {
     try {
+      setIsLoad(true)
       const response = await privateApiService.getPlanDetail(id);
       const plan = response.data;
       setOpenModal(true);
@@ -76,6 +80,8 @@ export default function PlanScreen() {
       setOpenModal(true);
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoad(false)
     }
   };
 
@@ -98,9 +104,8 @@ export default function PlanScreen() {
   };
 
   const updatePlan = async () => {
-    console.log(planId, payload);
-
     try {
+      setIsLoad(true)
       await privateApiService.updatePlanById(planId, payload);
       setPageNum(1);
       fetchPlan(1, rowsPerPage);
@@ -122,6 +127,8 @@ export default function PlanScreen() {
         visibilityTime: 2000,
         position: "top",
       });
+    } finally {
+      setIsLoad(false)
     }
   };
 
@@ -136,6 +143,7 @@ export default function PlanScreen() {
         style: "destructive",
         onPress: async () => {
           try {
+            setIsLoad(true)
             await privateApiService.deletePlanById(id);
             setPageNum(1);
             fetchPlan(1, rowsPerPage);
@@ -155,6 +163,8 @@ export default function PlanScreen() {
               visibilityTime: 2000,
               position: "top",
             });
+          } finally {
+            setIsLoad(false)
           }
         },
       },
@@ -163,6 +173,7 @@ export default function PlanScreen() {
 
   const createPlan = async () => {
     try {
+      setIsLoad(true)
       await privateApiService.createPlan(payload);
       handleResetField();
       setPageNum(1);
@@ -186,6 +197,8 @@ export default function PlanScreen() {
         visibilityTime: 2000,
         position: "top",
       });
+    } finally {
+      setIsLoad(false)
     }
   };
 
@@ -216,16 +229,15 @@ export default function PlanScreen() {
     }
   };
 
-  useEffect(() => {
-    const init = async () => {
-      const response = await useUserInfoStorage.getState().getUserInfo();
+  useFocusEffect(useCallback(() => {
+  const init = async () => {
+      const response = useUserInfoStorage.getState().userInfo;
       setUser(response);
       fetchPlan(pageNum, rowsPerPage);
     };
 
     init();
-  }, [pageNum, rowsPerPage]);
-
+  }, [pageNum, rowsPerPage]))
   // Card
   const renderItem = ({ item, index }) => {
     return (
@@ -243,7 +255,7 @@ export default function PlanScreen() {
             <Ionicons name="trash-bin-outline" size={24} color="white" />
           </Pressable>
         </View>
-        <Pressable
+        <TouchableOpacity
           onPress={() => {
             getPlanDetail(item._id);
             setPlanId(item._id);
@@ -299,10 +311,11 @@ export default function PlanScreen() {
               {moment(item.expected_result_date).format("DD/MM/YYYY")}
             </Text>
           </View>
-        </Pressable>
+        </TouchableOpacity>
       </View>
     );
   };
+  if (isLoad) return <LoadingCircle/>
   return (
     <View>
       {/* Create bttn */}
