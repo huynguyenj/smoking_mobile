@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   View,
   FlatList,
@@ -16,6 +16,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import BlogFilterBar from "../../components/blog/BlogFilterBar";
 import UpdateBlogPopup from "../../components/popup/UpdateBlogPopup";
 import SearchBar from "../../components/common/SearchBar";
+import { useFocusEffect } from "@react-navigation/native";
 export default function BlogScreen() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,12 +30,12 @@ export default function BlogScreen() {
   const [showCreatePopup, setShowCreatePopup] = useState(false);
   const [showMyBlogs, setShowMyBlogs] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     setBlogs([]);
     setPage(1);
     setHasMore(true);
     fetchBlogs(1);
-  }, [showMyBlogs]);
+  }, [showMyBlogs]))
 
   const fetchBlogs = async (pageToLoad = 1) => {
     if (pageToLoad !== 1 && (loadingMore || !hasMore)) return;

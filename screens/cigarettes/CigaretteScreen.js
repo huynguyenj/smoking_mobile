@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   View,
   FlatList,
@@ -14,6 +14,7 @@ import SearchBar from "../../components/common/SearchBar";
 import CreateCigarettePopup from "../../components/popup/CreateCigarettePopup";
 import CigaretteDetailPopup from "../../components/popup/CigaratteDetailPopup";
 import UpdateCigarettePopup from "../../components/popup/UpdateCigarettePopup";
+import { useFocusEffect } from "@react-navigation/native";
 export default function CigaretteScreen() {
   const [cigarettes, setCigarettes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -151,12 +152,12 @@ export default function CigaretteScreen() {
     }
   };
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     setCigarettes([]);
     setPage(1);
     setHasMore(true);
     fetchCigarettes(1);
-  }, []);
+  }, []))
 
   const handleEndReached = () => {
     if (hasMore && !loadingMore) {

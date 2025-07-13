@@ -7,12 +7,12 @@ import { useUserInfoStorage } from '../../store/authStore'
 
 export default function useLogout() {
   const [isLoadingLogout, setIsLoading] = useState(false)
-  const{clearAllStorage} = useUserInfoStorage.getState()
+  const{ clearAll} = useUserInfoStorage.getState()
   const handleLogout = async () => {
       try {
          setIsLoading(true)   
          await privateApiService.logout()
-         await clearAllStorage()
+         clearAll()
       } catch (error) {
             Toast.show({
                           type: 'error',
