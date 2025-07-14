@@ -84,13 +84,13 @@ const style = StyleSheet.create({
    },
    cancelBtn: {
       backgroundColor:'#d3d6db',
-      width: 70,
+      width: 90,
       padding:5,
       borderRadius:10
    },
    okBtn: {
       backgroundColor:'#5fc9f3',
-      width: 70,
+      width: 90,
       padding:5,
       borderRadius:10
    }

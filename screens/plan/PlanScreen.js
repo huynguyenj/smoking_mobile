@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   Alert,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import privateApiService from "../../services/userPrivateApi";
 import { useCallback, useEffect, useState } from "react";
@@ -24,7 +25,7 @@ import Toast from "react-native-toast-message";
 import Pagination from "../../components/pagination-bttn/Pagination";
 import LoadingCircle from "../../components/LoadingCircle";
 import { useFocusEffect } from "@react-navigation/native";
-
+import RNPickerSelect from 'react-native-picker-select';
 export default function PlanScreen() {
   const [planList, setPlanList] = useState([]);
   const [pageNum, setPageNum] = useState(1);
@@ -328,115 +329,129 @@ export default function PlanScreen() {
       </View>
 
       {/* Create / Update modal */}
-      <Modal visible={openModal}>
-        <Text style={{ textAlign: "center", fontWeight: "bold", fontSize: 30 }}>
-          {isEdit ? "Update your plan" : "Create your plan"}
-        </Text>
-        <Text style={styles.label}>Content</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Content"
-          value={content}
-          onChangeText={setContent}
-        />
+<Modal animationType="slide" visible={openModal}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <ScrollView contentContainerStyle={{ paddingBottom: 20, flexGrow: 1 }}>
+            <Text
+              style={{ textAlign: "center", fontWeight: "bold", fontSize: 30 }}
+            >
+              {isEdit ? "Update your plan" : "Create your plan"}
+            </Text>
+            <Text style={styles.label}>Content</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Content"
+              value={content}
+              onChangeText={setContent}
+            />
 
-        <Text style={styles.label}>Your health status</Text>
-        <Picker
-          style={styles.input}
-          selectedValue={health}
-          onValueChange={(item) => setHealth(item)}
-        >
-          <Picker.Item label="Good" value="good" />
-          <Picker.Item label="Average" value="average" />
-          <Picker.Item label="Bad" value="bad" />
-        </Picker>
+           <Text style={styles.label}>Your health status</Text>
+              <View style={styles.input}>
+               <RNPickerSelect
+                  onValueChange={(value) => setHealth(value)}
+                  value={health}
+                  items={[
+                    { label: "Good", value: "good" },
+                    { label: "Average", value: "average" },
+                    { label: "Bad", value: "bad" },
+                  ]}
+                />
+              </View>
 
-        <Text style={styles.label}>Process stage</Text>
-        <Picker
-          style={styles.input}
-          selectedValue={process}
-          onValueChange={(item) => setProcess(item)}
-        >
-          <Picker.Item label="Start" value="start" />
-          <Picker.Item label="Process" value="process" />
-          <Picker.Item label="Finish" value="finish" />
-          <Picker.Item label="Cancel" value="cancel" />
-        </Picker>
+              <Text style={styles.label}>Process stage</Text>
+              <View style={styles.input}>
+               <RNPickerSelect
+                  value={process}
+                  onValueChange={(value) => setProcess(value)}
+                  items={[
+                    { label: "Start", value: "start" },
+                    { label: "Process", value: "process" },
+                    { label: "Finish", value: "finish" },
+                    { label: "Cancel", value: "cancel" },
+                  ]}
+                />
+              </View>
 
-        <Text style={styles.label}>Start date</Text>
-        <Pressable style={styles.datePicker} onPress={() => setShowStart(true)}>
-          <View
-            style={{
-              flexDirection: "row",
-              gap: 5,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text>{moment(startDate).format("DD/MM/YYYY")}</Text>
-            <Ionicons name="calendar-outline" size={24} color="black" />
-          </View>
-        </Pressable>
-        {showStart && (
-          <DateTimePicker
-            display={Platform.OS === "ios" ? "spinner" : "default"}
-            mode="date"
-            minimumDate={new Date()}
-            value={startDate}
-            onChange={onChangeStartDate}
-          />
-        )}
-
-        <Text style={styles.label}>End date</Text>
-        <Pressable
-          style={styles.datePicker}
-          onPress={() => setShowExpect(true)}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              gap: 5,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text>{moment(expectDate).format("DD/MM/YYYY")}</Text>
-            <Ionicons name="calendar-sharp" size={24} color="black" />
-          </View>
-        </Pressable>
-        {showExpect && (
-          <DateTimePicker
-            display={Platform.OS === "ios" ? "spinner" : "default"}
-            mode="date"
-            minimumDate={startDate}
-            value={expectDate}
-            onChange={onChangeExpectDate}
-          />
-        )}
-
-        <View style={styles.bttn}>
-          <Pressable
-            style={styles.cancel}
-            onPress={() => {
-              setOpenModal(false);
-              setIsEdit(false);
-              handleResetField();
-            }}
-          >
-            <Text style={{ color: "white" }}>Cancel</Text>
-          </Pressable>
-          {isEdit ? (
-            <Pressable style={styles.save} onPress={updatePlan}>
-              <Text style={{ color: "white" }}>Save</Text>
+            <Text style={styles.label}>Start date</Text>
+            <Pressable
+              style={styles.datePicker}
+              onPress={() => setShowStart(true)}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 5,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text>{moment(startDate).format("DD/MM/YYYY")}</Text>
+                <Ionicons name="calendar-outline" size={24} color="black" />
+              </View>
             </Pressable>
-          ) : (
-            <Pressable style={styles.create} onPress={createPlan}>
-              <Text style={{ color: "white" }}>Create</Text>
+            {showStart && (
+              <DateTimePicker
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                mode="date"
+                minimumDate={new Date()}
+                value={startDate}
+                onChange={onChangeStartDate}
+              />
+            )}
+
+            <Text style={styles.label}>End date</Text>
+            <Pressable
+              style={styles.datePicker}
+              onPress={() => setShowExpect(true)}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 5,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text>{moment(expectDate).format("DD/MM/YYYY")}</Text>
+                <Ionicons name="calendar-sharp" size={24} color="black" />
+              </View>
             </Pressable>
-          )}
+            {showExpect && (
+              <DateTimePicker
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                mode="date"
+                minimumDate={startDate}
+                value={expectDate}
+                onChange={onChangeExpectDate}
+              />
+            )}
+
+            <View style={styles.bttn}>
+              <Pressable
+                style={styles.cancel}
+                onPress={() => {
+                  setOpenModal(false);
+                  setIsEdit(false);
+                  handleResetField();
+                }}
+              >
+                <Text style={{ color: "white" }}>Cancel</Text>
+              </Pressable>
+              {isEdit ? (
+                <Pressable style={styles.save} onPress={updatePlan}>
+                  <Text style={{ color: "white" }}>Save</Text>
+                </Pressable>
+              ) : (
+                <Pressable style={styles.create} onPress={createPlan}>
+                  <Text style={{ color: "white" }}>Create</Text>
+                </Pressable>
+              )}
+            </View>
+            </ScrollView>
+          </View>
         </View>
       </Modal>
-
       {isLoad ? (
         <ActivityIndicator size="large" color="#007AFF" />
       ) : (
@@ -536,10 +551,12 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: "black",
-    borderRadius: 15,
-    marginHorizontal: 10,
-    marginBottom: 30,
+  borderColor: "black",
+  borderRadius: 15,
+  marginHorizontal: 10,
+  marginBottom: 30,
+  height: 50,
+  justifyContent: "center",
   },
   label: {
     fontSize: 15,
@@ -594,5 +611,18 @@ const styles = StyleSheet.create({
     padding: 5,
     borderBottomLeftRadius: 16,
     borderTopRightRadius: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.3)",
+  },
+ modalContent: {
+    width: "90%",
+    backgroundColor: "white",
+    borderRadius: 15,
+    padding: 20,
+    maxHeight: "80%",
   },
 });

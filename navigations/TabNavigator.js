@@ -14,6 +14,7 @@ import CigaretteScreen from '../screens/cigarettes/CigaretteScreen'
 import BlogScreen from '../screens/blog/BlogScreen'
 import RankScreen from '../screens/rank/RankScreen'
 import Profile from '../screens/profile/ProfileScreen'
+import ChatMainScreen from '../screens/message/ChatMainScreen'
 const Tab = createBottomTabNavigator()
 export default function TabNavigator() {
   return (
@@ -48,6 +49,8 @@ export default function TabNavigator() {
             focused ? 
             iconName = <FontAwesome name="user-circle" size={30} color="black" />
             : iconName = <FontAwesome name="user-circle" size={30} color="gray" />
+          } else if (route.name === 'Message') {
+            focused ? iconName = <AntDesign name="message1" size={30} color="black" /> : iconName = <AntDesign name="message1" size={30} color="gray" />
           }
           return iconName
         },
@@ -62,6 +65,7 @@ export default function TabNavigator() {
       <Tab.Screen name="Blogs" component={BlogScreen} />
       <Tab.Screen name="Ranking" component={RankScreen} />
       <Tab.Screen options={{headerShown: false}} name="Profile" component={Profile} />
+      <Tab.Screen name="Message" component={ChatMainScreen}/>
     </Tab.Navigator>
   )
 }

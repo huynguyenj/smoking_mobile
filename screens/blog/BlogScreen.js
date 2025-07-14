@@ -186,6 +186,7 @@ export default function BlogScreen() {
 
   return (
     <View style={{ flex: 1 }}>
+      
       <SearchBar
         value={searchTerm}
         onChange={setSearchTerm}
@@ -204,7 +205,7 @@ export default function BlogScreen() {
         showMyBlogs={showMyBlogs}
         onChange={(val) => setShowMyBlogs(val)}
       />
-
+      {blogs.length > 0 ? 
       <FlatList
         data={filteredBlogs}
         keyExtractor={(item) => item._id}
@@ -225,6 +226,9 @@ export default function BlogScreen() {
           loadingMore && <ActivityIndicator size="small" color="#555" />
         }
       />
+      : 
+      <Text style={{textAlign:'center', marginTop:20, color:'gray', fontWeight:'bold'}}>No blogs</Text>
+    }
 
       {/* Chi tiết blog */}
       {detailBlog && (
