@@ -94,21 +94,21 @@ export default function CreateBlogPopup({ visible, onClose, onSubmit }) {
             disabled={loadingPost}
           >
             <Text style={[styles.postBtn, loadingPost && { opacity: 0.5 }]}>
-              {loadingPost ? "Đang đăng..." : "Đăng"}
+              {loadingPost ? "Posting..." : "Post"}
             </Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
           <TextInput
-            placeholder="Tiêu đề"
+            placeholder="Title"
             value={title}
             onChangeText={setTitle}
             style={styles.input}
             placeholderTextColor="#888"
           />
           <TextInput
-            placeholder="Nội dung..."
+            placeholder="Content..."
             value={content}
             onChangeText={setContent}
             multiline
