@@ -15,8 +15,26 @@ import BlogScreen from '../screens/blog/BlogScreen'
 import RankScreen from '../screens/rank/RankScreen'
 import Profile from '../screens/profile/ProfileScreen'
 import ChatMainScreen from '../screens/message/ChatMainScreen'
+import { useCallback, useState } from 'react'
+import { useUserInfoStorage } from '../store/authStore'
+import { useFocusEffect } from '@react-navigation/native'
+import privateApiService from '../services/userPrivateApi'
 const Tab = createBottomTabNavigator()
 export default function TabNavigator() {
+  const [membership, setMembership] = useState()
+  const userInfo = useUserInfoStorage.getState().userInfo
+  useFocusEffect(useCallback(() => {
+    const getMembership = async () => {
+      try {
+        const response = await privateApiService.getMemberShipInfo(userInfo?.membership.membership_id)
+        setMembership(response.data)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    getMembership()
+  },[]))
+  
   return (
     <Tab.Navigator 
        screenOptions={({ route }) => ({
@@ -49,7 +67,7 @@ export default function TabNavigator() {
             focused ? 
             iconName = <FontAwesome name="user-circle" size={30} color="black" />
             : iconName = <FontAwesome name="user-circle" size={30} color="gray" />
-          } else if (route.name === 'Message') {
+          } else if (route.name === 'Message' && membership.membership_title.toLowerCase() === 'premium') {
             focused ? iconName = <AntDesign name="message1" size={30} color="black" /> : iconName = <AntDesign name="message1" size={30} color="gray" />
           }
           return iconName
@@ -65,7 +83,9 @@ export default function TabNavigator() {
       <Tab.Screen name="Blogs" component={BlogScreen} />
       <Tab.Screen name="Ranking" component={RankScreen} />
       <Tab.Screen options={{headerShown: false}} name="Profile" component={Profile} />
+      {membership?.membership_title.toLowerCase() === 'premium' && 
       <Tab.Screen name="Message" component={ChatMainScreen}/>
+      }
     </Tab.Navigator>
   )
 }

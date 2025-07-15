@@ -18,14 +18,12 @@ import privateApiService from "../../services/userPrivateApi";
 import { useCallback, useEffect, useState } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useUserInfoStorage } from "../../store/authStore";
-import RNPickerSelect from "react-native-picker-select";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import moment from "moment";
 import Toast from "react-native-toast-message";
 import Pagination from "../../components/pagination-bttn/Pagination";
 import LoadingCircle from "../../components/LoadingCircle";
 import { useFocusEffect } from "@react-navigation/native";
-import RNPickerSelect from 'react-native-picker-select';
 export default function PlanScreen() {
   const [showHealthDropdown, setShowHealthDropdown] = useState(false);
   const healthOptions = [

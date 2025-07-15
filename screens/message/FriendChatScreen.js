@@ -18,13 +18,13 @@ export default function FriendChatScreen({route}) {
   const [text, setText] = useState(null)
   const { socket, setRoomId } = useMessage()
   const navigation = useNavigation()
-  useFocusEffect(useCallback(() => {
-      const getMessage = async () => {
-            try {
-              setIsLoading(true)
-              const response = await privateApiService.getMessageHistory(friend._id)
-              setMessages(response.data)
-              setRoomId(response?.data.user_info._id, response?.data.friend_info._id)
+  useEffect(() => {
+        const getMessage = async () => {
+              try {
+                    setIsLoading(true)
+                    const response = await privateApiService.getMessageHistory(friend._id)
+                    setMessages(response.data)
+                    setRoomId(generateRoomId(response?.data.user_info._id, response?.data.friend_info._id))
             } catch (error) {
                   
             } finally {
@@ -32,11 +32,11 @@ export default function FriendChatScreen({route}) {
             }
       }
       getMessage()
-  },[]))
+  },[])
   useEffect(() => {
       if (!socket) return
       socket.on('received-message', (newMessage) => {
-            const oldMessage = messages?.result
+            console.log(newMessage)
             setMessages((prev) => ({
             ...prev, result: [...(prev?.result || []), newMessage],
             }));
