@@ -22,7 +22,7 @@ export const profileStyle = StyleSheet.create({
             gap: 10
       },
       nameSize: {
-            fontSize: 18
+            fontSize: 15
       },
       achievementContainer: {
             flexDirection:'row',

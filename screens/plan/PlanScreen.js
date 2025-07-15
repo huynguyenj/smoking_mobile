@@ -25,7 +25,7 @@ import Toast from "react-native-toast-message";
 import Pagination from "../../components/pagination-bttn/Pagination";
 import LoadingCircle from "../../components/LoadingCircle";
 import { useFocusEffect } from "@react-navigation/native";
-
+import RNPickerSelect from 'react-native-picker-select';
 export default function PlanScreen() {
   const [showHealthDropdown, setShowHealthDropdown] = useState(false);
   const healthOptions = [
@@ -536,7 +536,6 @@ export default function PlanScreen() {
           </View>
         </View>
       </Modal>
-
       {isLoad ? (
         <ActivityIndicator size="large" color="#007AFF" />
       ) : (
