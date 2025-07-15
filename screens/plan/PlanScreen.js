@@ -12,12 +12,13 @@ import {
   ActivityIndicator,
   Alert,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import privateApiService from "../../services/userPrivateApi";
 import { useCallback, useEffect, useState } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useUserInfoStorage } from "../../store/authStore";
-import { Picker } from "@react-native-picker/picker";
+import RNPickerSelect from "react-native-picker-select";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import moment from "moment";
 import Toast from "react-native-toast-message";
@@ -26,6 +27,19 @@ import LoadingCircle from "../../components/LoadingCircle";
 import { useFocusEffect } from "@react-navigation/native";
 
 export default function PlanScreen() {
+  const [showHealthDropdown, setShowHealthDropdown] = useState(false);
+  const healthOptions = [
+    { label: "Good", value: "good" },
+    { label: "Average", value: "average" },
+    { label: "Bad", value: "bad" },
+  ];
+  const [showProcessDropdown, setShowProcessDropdown] = useState(false);
+  const processOptions = [
+    { label: "Start", value: "start" },
+    { label: "Process", value: "process" },
+    { label: "Finish", value: "finish" },
+    { label: "Cancel", value: "cancel" },
+  ];
   const [planList, setPlanList] = useState([]);
   const [pageNum, setPageNum] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(3);
@@ -44,6 +58,7 @@ export default function PlanScreen() {
   const [planDetai, setPlanDetail] = useState({});
   const [isEdit, setIsEdit] = useState(false);
   const [planId, setPlanId] = useState();
+  const [sort, setSort] = useState(-1)//mới nhất
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -51,10 +66,10 @@ export default function PlanScreen() {
     fetchPlan(1, rowsPerPage).finally(() => setRefreshing(false));
   }, [pageNum, rowsPerPage]);
 
-  const fetchPlan = async (page, limit) => {
+  const fetchPlan = async (page, limit, sortOrder) => {
     setIsLoad(true);
     try {
-      const response = await privateApiService.getAllPlans(page, limit);
+      const response = await privateApiService.getAllPlans(page, limit, sortOrder);
       setPlanList(response.data?.listData);
       setTotalPage(response.data?.pageInfo?.totalPage);
     } catch (error) {
@@ -66,7 +81,7 @@ export default function PlanScreen() {
 
   const getPlanDetail = async (id) => {
     try {
-      setIsLoad(true)
+      setIsLoad(true);
       const response = await privateApiService.getPlanDetail(id);
       const plan = response.data;
       setOpenModal(true);
@@ -81,7 +96,7 @@ export default function PlanScreen() {
     } catch (error) {
       console.log(error);
     } finally {
-      setIsLoad(false)
+      setIsLoad(false);
     }
   };
 
@@ -105,10 +120,10 @@ export default function PlanScreen() {
 
   const updatePlan = async () => {
     try {
-      setIsLoad(true)
+      setIsLoad(true);
       await privateApiService.updatePlanById(planId, payload);
       setPageNum(1);
-      fetchPlan(1, rowsPerPage);
+      fetchPlan(1, rowsPerPage, 1);
       handleResetField();
       setOpenModal(false);
       Toast.show({
@@ -128,7 +143,7 @@ export default function PlanScreen() {
         position: "top",
       });
     } finally {
-      setIsLoad(false)
+      setIsLoad(false);
     }
   };
 
@@ -143,10 +158,10 @@ export default function PlanScreen() {
         style: "destructive",
         onPress: async () => {
           try {
-            setIsLoad(true)
+            setIsLoad(true);
             await privateApiService.deletePlanById(id);
             setPageNum(1);
-            fetchPlan(1, rowsPerPage);
+            fetchPlan(1, rowsPerPage, 1);
             Toast.show({
               type: "success",
               text1: "Delete Successful",
@@ -164,7 +179,7 @@ export default function PlanScreen() {
               position: "top",
             });
           } finally {
-            setIsLoad(false)
+            setIsLoad(false);
           }
         },
       },
@@ -173,11 +188,11 @@ export default function PlanScreen() {
 
   const createPlan = async () => {
     try {
-      setIsLoad(true)
+      setIsLoad(true);
       await privateApiService.createPlan(payload);
       handleResetField();
       setPageNum(1);
-      fetchPlan(1, rowsPerPage);
+      fetchPlan(1, rowsPerPage, 1);
       setOpenModal(false);
       Toast.show({
         type: "success",
@@ -198,7 +213,7 @@ export default function PlanScreen() {
         position: "top",
       });
     } finally {
-      setIsLoad(false)
+      setIsLoad(false);
     }
   };
 
@@ -208,6 +223,13 @@ export default function PlanScreen() {
       setStartDate(selectedDate);
     }
   };
+  const toggleSort = () => {
+  const newSort = sort === -1 ? 1 : -1;
+  setSort(newSort);
+  setPageNum(1); // reset về page 1
+  fetchPlan(1, rowsPerPage, newSort);
+};
+
   const onChangeExpectDate = (event, selectedDate) => {
     setShowExpect(false);
     if (selectedDate) {
@@ -218,26 +240,28 @@ export default function PlanScreen() {
   const handlePrevPage = () => {
     if (pageNum > 1) {
       setPageNum(pageNum - 1);
-      fetchPlan(pageNum - 1, rowsPerPage);
+      fetchPlan(pageNum - 1, rowsPerPage, sort);
     }
   };
 
   const handleNextPage = () => {
     if (pageNum < totalPage) {
       setPageNum(pageNum + 1);
-      fetchPlan(pageNum + 1, rowsPerPage);
+      fetchPlan(pageNum + 1, rowsPerPage, sort);
     }
   };
 
-  useFocusEffect(useCallback(() => {
-  const init = async () => {
-      const response = useUserInfoStorage.getState().userInfo;
-      setUser(response);
-      fetchPlan(pageNum, rowsPerPage);
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const init = async () => {
+        const response = useUserInfoStorage.getState().userInfo;
+        setUser(response);
+        fetchPlan(pageNum, rowsPerPage, sort);
+      };
 
-    init();
-  }, [pageNum, rowsPerPage]))
+      init();
+    }, [pageNum, rowsPerPage, sort])
+  );
   // Card
   const renderItem = ({ item, index }) => {
     return (
@@ -262,9 +286,9 @@ export default function PlanScreen() {
             setIsEdit(true);
           }}
         >
-          <Text style={styles.title}>
+          {/* <Text style={styles.title}>
             🚭 Quit Smoking Plan {(pageNum - 1) * rowsPerPage + index + 1}
-          </Text>
+          </Text> */}
 
           <View style={styles.row}>
             <Ionicons name="analytics-outline" size={20} color="black" />
@@ -315,125 +339,201 @@ export default function PlanScreen() {
       </View>
     );
   };
-  if (isLoad) return <LoadingCircle/>
+  if (isLoad) return <LoadingCircle />;
   return (
     <View>
       {/* Create bttn */}
       <View
-        style={{ flexDirection: "row", justifyContent: "flex-end", margin: 10 }}
+        style={{ flexDirection: "row", justifyContent: "flex-end", margin: 10, gap: 10 }}
       >
+        <Pressable style={styles.sortButton} onPress={toggleSort}>
+    <Text style={{ color: "white" }}>
+      Sort: {sort === -1 ? "Newest" : "Oldest"}
+    </Text>
+  </Pressable>
         <Pressable style={styles.open} onPress={() => setOpenModal(true)}>
           <Text style={{ color: "white" }}>Create plan</Text>
         </Pressable>
+        
       </View>
 
+      
+
+
       {/* Create / Update modal */}
-      <Modal visible={openModal}>
-        <Text style={{ textAlign: "center", fontWeight: "bold", fontSize: 30 }}>
-          {isEdit ? "Update your plan" : "Create your plan"}
-        </Text>
-        <Text style={styles.label}>Content</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Content"
-          value={content}
-          onChangeText={setContent}
-        />
+      <Modal animationType="slide" visible={openModal}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <ScrollView
+              contentContainerStyle={{ paddingBottom: 20, flexGrow: 1 }}
+            >
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontWeight: "bold",
+                  fontSize: 30,
+                }}
+              >
+                {isEdit ? "Update your plan" : "Create your plan"}
+              </Text>
+              <Text style={styles.label}>Content</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Content"
+                value={content}
+                onChangeText={setContent}
+              />
 
-        <Text style={styles.label}>Your health status</Text>
-        <Picker
-          style={styles.input}
-          selectedValue={health}
-          onValueChange={(item) => setHealth(item)}
-        >
-          <Picker.Item label="Good" value="good" />
-          <Picker.Item label="Average" value="average" />
-          <Picker.Item label="Bad" value="bad" />
-        </Picker>
+              <Text style={styles.label}>Your health status</Text>
+              <Pressable
+                style={styles.dropdownButton}
+                onPress={() => setShowHealthDropdown(true)}
+              >
+                <Text style={styles.dropdownButtonText}>
+                  {healthOptions.find((item) => item.value === health)?.label ||
+                    "Select"}
+                </Text>
+              </Pressable>
 
-        <Text style={styles.label}>Process stage</Text>
-        <Picker
-          style={styles.input}
-          selectedValue={process}
-          onValueChange={(item) => setProcess(item)}
-        >
-          <Picker.Item label="Start" value="start" />
-          <Picker.Item label="Process" value="process" />
-          <Picker.Item label="Finish" value="finish" />
-          <Picker.Item label="Cancel" value="cancel" />
-        </Picker>
+              {/* Dropdown modal */}
+              <Modal
+                visible={showHealthDropdown}
+                transparent
+                animationType="fade"
+              >
+                <Pressable
+                  style={styles.modalOverlay}
+                  onPress={() => setShowHealthDropdown(false)}
+                >
+                  <View style={styles.dropdown}>
+                    {healthOptions.map((item) => (
+                      <Pressable
+                        key={item.value}
+                        style={styles.dropdownItem}
+                        onPress={() => {
+                          setHealth(item.value);
+                          setShowHealthDropdown(false);
+                        }}
+                      >
+                        <Text>{item.label}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </Pressable>
+              </Modal>
 
-        <Text style={styles.label}>Start date</Text>
-        <Pressable style={styles.datePicker} onPress={() => setShowStart(true)}>
-          <View
-            style={{
-              flexDirection: "row",
-              gap: 5,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text>{moment(startDate).format("DD/MM/YYYY")}</Text>
-            <Ionicons name="calendar-outline" size={24} color="black" />
+              <Text style={styles.label}>Process stage</Text>
+              <Pressable
+                style={styles.dropdownButton}
+                onPress={() => setShowProcessDropdown(true)}
+              >
+                <Text style={styles.dropdownButtonText}>
+                  {processOptions.find((item) => item.value === process)?.label ||
+                    "Select"}
+                </Text>
+              </Pressable>
+
+              {/* Dropdown modal */}
+              <Modal
+                visible={showProcessDropdown}
+                transparent
+                animationType="fade"
+              >
+                <Pressable
+                  style={styles.modalOverlay}
+                  onPress={() => setShowProcessDropdown(false)}
+                >
+                  <View style={styles.dropdown}>
+                    {processOptions.map((item) => (
+                      <Pressable
+                        key={item.value}
+                        style={styles.dropdownItem}
+                        onPress={() => {
+                          setProcess(item.value);
+                          setShowProcessDropdown(false);
+                        }}
+                      >
+                        <Text>{item.label}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </Pressable>
+              </Modal>
+              <Text style={styles.label}>Start date</Text>
+              <Pressable
+                style={styles.datePicker}
+                onPress={() => setShowStart(true)}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    gap: 5,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text>{moment(startDate).format("DD/MM/YYYY")}</Text>
+                  <Ionicons name="calendar-outline" size={24} color="black" />
+                </View>
+              </Pressable>
+              {showStart && (
+                <DateTimePicker
+                  mode="date"
+                  minimumDate={new Date()}
+                  value={startDate}
+                  onChange={onChangeStartDate}
+                />
+              )}
+
+              <Text style={styles.label}>End date</Text>
+              <Pressable
+                style={styles.datePicker}
+                onPress={() => setShowExpect(true)}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    gap: 5,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text>{moment(expectDate).format("DD/MM/YYYY")}</Text>
+                  <Ionicons name="calendar-sharp" size={24} color="black" />
+                </View>
+              </Pressable>
+              {showExpect && (
+                <DateTimePicker
+                  mode="date"
+                  minimumDate={startDate}
+                  value={expectDate}
+                  onChange={onChangeExpectDate}
+                />
+              )}
+
+              <View style={styles.bttn}>
+                <Pressable
+                  style={styles.cancel}
+                  onPress={() => {
+                    setOpenModal(false);
+                    setIsEdit(false);
+                    handleResetField();
+                  }}
+                >
+                  <Text style={{ color: "white" }}>Cancel</Text>
+                </Pressable>
+                {isEdit ? (
+                  <Pressable style={styles.save} onPress={updatePlan}>
+                    <Text style={{ color: "white" }}>Save</Text>
+                  </Pressable>
+                ) : (
+                  <Pressable style={styles.create} onPress={createPlan}>
+                    <Text style={{ color: "white" }}>Create</Text>
+                  </Pressable>
+                )}
+              </View>
+            </ScrollView>
           </View>
-        </Pressable>
-        {showStart && (
-          <DateTimePicker
-            display={Platform.OS === "ios" ? "spinner" : "default"}
-            mode="date"
-            minimumDate={new Date()}
-            value={startDate}
-            onChange={onChangeStartDate}
-          />
-        )}
-
-        <Text style={styles.label}>End date</Text>
-        <Pressable
-          style={styles.datePicker}
-          onPress={() => setShowExpect(true)}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              gap: 5,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text>{moment(expectDate).format("DD/MM/YYYY")}</Text>
-            <Ionicons name="calendar-sharp" size={24} color="black" />
-          </View>
-        </Pressable>
-        {showExpect && (
-          <DateTimePicker
-            display={Platform.OS === "ios" ? "spinner" : "default"}
-            mode="date"
-            minimumDate={startDate}
-            value={expectDate}
-            onChange={onChangeExpectDate}
-          />
-        )}
-
-        <View style={styles.bttn}>
-          <Pressable
-            style={styles.cancel}
-            onPress={() => {
-              setOpenModal(false);
-              setIsEdit(false);
-              handleResetField();
-            }}
-          >
-            <Text style={{ color: "white" }}>Cancel</Text>
-          </Pressable>
-          {isEdit ? (
-            <Pressable style={styles.save} onPress={updatePlan}>
-              <Text style={{ color: "white" }}>Save</Text>
-            </Pressable>
-          ) : (
-            <Pressable style={styles.create} onPress={createPlan}>
-              <Text style={{ color: "white" }}>Create</Text>
-            </Pressable>
-          )}
         </View>
       </Modal>
 
@@ -540,7 +640,10 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginHorizontal: 10,
     marginBottom: 30,
+    height: 50,
+    justifyContent: "center",
   },
+
   label: {
     fontSize: 15,
     fontWeight: "bold",
@@ -552,7 +655,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginHorizontal: 10,
     paddingVertical: 5,
-    width: 120,
+    width: 150,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
@@ -595,4 +698,55 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 16,
     borderTopRightRadius: 16,
   },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.3)",
+  },
+  modalContent: {
+    width: "90%",
+    backgroundColor: "white",
+    borderRadius: 15,
+    padding: 20,
+    maxHeight: "80%",
+  },
+  dropdownButton: {
+    borderWidth: 1,
+    borderColor: "black",
+    borderRadius: 10,
+    padding: 10,
+    marginHorizontal: 10,
+    marginBottom: 20,
+    backgroundColor: "#fff",
+  },
+  dropdownButtonText: {
+    color: "#333",
+  },
+  dropdown: {
+    backgroundColor: "white",
+    borderRadius: 8,
+    padding: 10,
+    width: "80%",
+    alignSelf: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 5,
+  },
+  dropdownItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  sortButton: {
+  padding: 5,
+  backgroundColor: "purple",
+  borderRadius: 5,
+  width: "auto",
+  flexDirection: "row",
+  justifyContent: "center",
+  alignItems: "center",
+},
+
 });

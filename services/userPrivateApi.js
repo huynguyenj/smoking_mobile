@@ -24,10 +24,11 @@ const privateApiService = {
   createPlan: (payload) =>
     apiService.privateApiClient.post("/v1/users/plan", payload),
 
-  getAllPlans: (page = 1, limit = 5) =>
+  getAllPlans: (page = 1, limit = 5, sort = -1) =>
     apiService.privateApiClient.post("/v1/users/plan/pagination", {
       page,
       limit,
+      sort
     }),
 
   getPlanDetail: (id) =>
