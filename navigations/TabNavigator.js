@@ -15,6 +15,7 @@ import BlogScreen from '../screens/blog/BlogScreen'
 import RankScreen from '../screens/rank/RankScreen'
 import Profile from '../screens/profile/ProfileScreen'
 import ChatMainScreen from '../screens/message/ChatMainScreen'
+import InitialState from '../screens/initial-state/InitialState'
 import { useCallback, useState } from 'react'
 import { useUserInfoStorage } from '../store/authStore'
 import { useFocusEffect } from '@react-navigation/native'
@@ -69,6 +70,8 @@ export default function TabNavigator() {
             : iconName = <FontAwesome name="user-circle" size={30} color="gray" />
           } else if (route.name === 'Message' && membership.membership_title.toLowerCase() === 'premium') {
             focused ? iconName = <AntDesign name="message1" size={30} color="black" /> : iconName = <AntDesign name="message1" size={30} color="gray" />
+          } else if (route.name === 'State') {
+            focused ? iconName = <MaterialIcons name="health-and-safety" size={30} color="black" /> : iconName = <MaterialIcons name="health-and-safety" size={30} color="gray" />
           }
           return iconName
         },
@@ -79,6 +82,7 @@ export default function TabNavigator() {
     >
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Plan" component={PlanScreen} />
+      <Tab.Screen name='State' component={InitialState}/>
       <Tab.Screen name="Cigarettes" component={CigaretteScreen} />
       <Tab.Screen name="Blogs" component={BlogScreen} />
       <Tab.Screen name="Ranking" component={RankScreen} />

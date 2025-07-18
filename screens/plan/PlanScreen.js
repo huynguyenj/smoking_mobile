@@ -482,7 +482,6 @@ export default function PlanScreen() {
                   onChange={onChangeStartDate}
                 />
               )}
-
               <Text style={styles.label}>End date</Text>
               <Pressable
                 style={styles.datePicker}
@@ -546,14 +545,22 @@ export default function PlanScreen() {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
-          ListFooterComponent={
-            <Pagination
-              page={pageNum}
-              totalPage={totalPage}
-              onNextPage={handleNextPage}
-              onPrevPage={handlePrevPage}
-            />
-          }
+       ListFooterComponent={
+        planList && planList.length > 0 ? (
+        <Pagination
+          page={pageNum}
+          totalPage={totalPage}
+          onNextPage={handleNextPage}
+          onPrevPage={handlePrevPage}
+        />
+    
+      ) : null
+      }
+      ListEmptyComponent={
+    <View style={{ alignItems: 'center', marginTop: 20 }}>
+      <Text style={{ color: '#666', fontSize: 16 }}>No plans found</Text>
+    </View>
+  }
         />
       )}
     </View>
