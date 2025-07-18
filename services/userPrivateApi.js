@@ -21,6 +21,12 @@ const privateApiService = {
   searchFriend: (searchTerm) =>
     apiService.privateApiClient.post("/v1/users/info", { search: searchTerm }),
 
+  getInitialState: () =>
+    apiService.privateApiClient.get("v1/users/initial-cigarette"),
+
+  checkCompleteStage: (id, payload) =>
+    apiService.privateApiClient.post(`v1/users/plan/edit/${id}`, payload),
+
   createPlan: (payload) =>
     apiService.privateApiClient.post("/v1/users/plan", payload),
 

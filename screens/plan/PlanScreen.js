@@ -18,14 +18,14 @@ import privateApiService from "../../services/userPrivateApi";
 import { useCallback, useEffect, useState } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useUserInfoStorage } from "../../store/authStore";
-import RNPickerSelect from "react-native-picker-select";
+
 import DateTimePicker from "@react-native-community/datetimepicker";
 import moment from "moment";
 import Toast from "react-native-toast-message";
 import Pagination from "../../components/pagination-bttn/Pagination";
 import LoadingCircle from "../../components/LoadingCircle";
 import { useFocusEffect } from "@react-navigation/native";
-import RNPickerSelect from 'react-native-picker-select';
+
 export default function PlanScreen() {
   const [showHealthDropdown, setShowHealthDropdown] = useState(false);
   const healthOptions = [
@@ -34,19 +34,13 @@ export default function PlanScreen() {
     { label: "Bad", value: "bad" },
   ];
   const [showProcessDropdown, setShowProcessDropdown] = useState(false);
-  const processOptions = [
-    { label: "Start", value: "start" },
-    { label: "Process", value: "process" },
-    { label: "Finish", value: "finish" },
-    { label: "Cancel", value: "cancel" },
-  ];
   const [planList, setPlanList] = useState([]);
   const [pageNum, setPageNum] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(3);
   const [openModal, setOpenModal] = useState(false);
   const [content, setContent] = useState("");
   const [health, setHealth] = useState("good");
-  const [process, setProcess] = useState("start");
+  const [process, setProcess] = useState([]);
   const [expectDate, setExpectDate] = useState(new Date(Date.now()));
   const [startDate, setStartDate] = useState(new Date(Date.now()));
   const [showStart, setShowStart] = useState(false);
@@ -58,7 +52,12 @@ export default function PlanScreen() {
   const [planDetai, setPlanDetail] = useState({});
   const [isEdit, setIsEdit] = useState(false);
   const [planId, setPlanId] = useState();
-  const [sort, setSort] = useState(-1)//mới nhất
+  const [sort, setSort] = useState(-1); //mới nhất
+  const [initialState, setInitialState] = useState();
+  const [selectedStage, setSelectedStage] = useState();
+  const [openedIndex, setOpenedIndex] = useState(false);
+  const [showInitial, setShowInitial] = useState(false);
+  const [cigaretteSate, setCigaretteState] = useState();
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -69,13 +68,28 @@ export default function PlanScreen() {
   const fetchPlan = async (page, limit, sortOrder) => {
     setIsLoad(true);
     try {
-      const response = await privateApiService.getAllPlans(page, limit, sortOrder);
+      const response = await privateApiService.getAllPlans(
+        page,
+        limit,
+        sortOrder
+      );
       setPlanList(response.data?.listData);
       setTotalPage(response.data?.pageInfo?.totalPage);
+      console.log(response.data?.listData);
     } catch (error) {
       console.log(error);
     } finally {
       setIsLoad(false);
+    }
+  };
+
+  const fetchInitialState = async () => {
+    try {
+      const response = await privateApiService.getInitialState();
+      setInitialState(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -93,6 +107,7 @@ export default function PlanScreen() {
       setExpectDate(new Date(plan.expected_result_date));
       setIsEdit(true);
       setOpenModal(true);
+      console.log(plan.process_stage);
     } catch (error) {
       console.log(error);
     } finally {
@@ -103,11 +118,36 @@ export default function PlanScreen() {
   const payload = {
     ...(isEdit ? {} : { user_id: user._id }),
 
-    process_stage: process,
+    // process_stage: process,
     health_status: health,
     content: content,
     start_date: startDate.getTime(),
-    expected_result_date: expectDate.getTime(),
+    // expected_result_date: expectDate.getTime(),
+    ...(isEdit ? {} : { initial_cigarette_id: cigaretteSate }),
+  };
+
+  const checkCompleteStage = async (stage) => {
+    setOpenModal(false);
+    try {
+      await privateApiService.checkCompleteStage(planId, stage);
+
+      Toast.show({
+        type: "success",
+        text1: "Check success",
+        text1Style: { fontSize: 20 },
+        visibilityTime: 2000,
+        position: "top",
+      });
+    } catch (error) {
+      console.log(error);
+      Toast.show({
+        type: "error",
+        text1: error,
+        text1Style: { fontSize: 20 },
+        visibilityTime: 2000,
+        position: "top",
+      });
+    }
   };
 
   const handleResetField = () => {
@@ -224,11 +264,11 @@ export default function PlanScreen() {
     }
   };
   const toggleSort = () => {
-  const newSort = sort === -1 ? 1 : -1;
-  setSort(newSort);
-  setPageNum(1); // reset về page 1
-  fetchPlan(1, rowsPerPage, newSort);
-};
+    const newSort = sort === -1 ? 1 : -1;
+    setSort(newSort);
+    setPageNum(1); // reset về page 1
+    fetchPlan(1, rowsPerPage, newSort);
+  };
 
   const onChangeExpectDate = (event, selectedDate) => {
     setShowExpect(false);
@@ -257,12 +297,14 @@ export default function PlanScreen() {
         const response = useUserInfoStorage.getState().userInfo;
         setUser(response);
         fetchPlan(pageNum, rowsPerPage, sort);
+        fetchInitialState();
       };
 
       init();
     }, [pageNum, rowsPerPage, sort])
   );
-  // Card
+
+  // Card plan
   const renderItem = ({ item, index }) => {
     return (
       <View style={styles.card}>
@@ -286,15 +328,11 @@ export default function PlanScreen() {
             setIsEdit(true);
           }}
         >
-          {/* <Text style={styles.title}>
-            🚭 Quit Smoking Plan {(pageNum - 1) * rowsPerPage + index + 1}
-          </Text> */}
-
-          <View style={styles.row}>
+          {/* <View style={styles.row}>
             <Ionicons name="analytics-outline" size={20} color="black" />
             <Text style={styles.label}>Process Stage: </Text>
             <Text style={styles.value}>{item.process_stage}</Text>
-          </View>
+          </View> */}
 
           <View style={styles.row}>
             <Ionicons
@@ -344,21 +382,22 @@ export default function PlanScreen() {
     <View>
       {/* Create bttn */}
       <View
-        style={{ flexDirection: "row", justifyContent: "flex-end", margin: 10, gap: 10 }}
+        style={{
+          flexDirection: "row",
+          justifyContent: "flex-end",
+          margin: 10,
+          gap: 10,
+        }}
       >
         <Pressable style={styles.sortButton} onPress={toggleSort}>
-    <Text style={{ color: "white" }}>
-      Sort: {sort === -1 ? "Newest" : "Oldest"}
-    </Text>
-  </Pressable>
+          <Text style={{ color: "white" }}>
+            Sort: {sort === -1 ? "Newest" : "Oldest"}
+          </Text>
+        </Pressable>
         <Pressable style={styles.open} onPress={() => setOpenModal(true)}>
           <Text style={{ color: "white" }}>Create plan</Text>
         </Pressable>
-        
       </View>
-
-      
-
 
       {/* Create / Update modal */}
       <Modal animationType="slide" visible={openModal}>
@@ -376,6 +415,8 @@ export default function PlanScreen() {
               >
                 {isEdit ? "Update your plan" : "Create your plan"}
               </Text>
+
+              {/* Content */}
               <Text style={styles.label}>Content</Text>
               <TextInput
                 style={styles.input}
@@ -384,6 +425,7 @@ export default function PlanScreen() {
                 onChangeText={setContent}
               />
 
+              {/* Health status */}
               <Text style={styles.label}>Your health status</Text>
               <Pressable
                 style={styles.dropdownButton}
@@ -395,7 +437,7 @@ export default function PlanScreen() {
                 </Text>
               </Pressable>
 
-              {/* Dropdown modal */}
+              {/* Health status Dropdown modal */}
               <Modal
                 visible={showHealthDropdown}
                 transparent
@@ -422,19 +464,155 @@ export default function PlanScreen() {
                 </Pressable>
               </Modal>
 
-              <Text style={styles.label}>Process stage</Text>
-              <Pressable
+              {/* Cigarette state */}
+              {!isEdit ? (
+                <>
+                  <Text style={styles.label}>Cigarette state</Text>
+                  <Pressable
+                    style={styles.dropdownButton}
+                    onPress={() => setShowInitial(true)}
+                  >
+                    <Text style={styles.dropdownButtonText}>
+                      Nicotine:
+                      {initialState
+                        ?.find((item) => item._id === cigaretteSate)
+                        ?.nicotine_evaluation?.toString() || "Select"}
+                    </Text>
+                  </Pressable>
+                  {initialState?.length === 0 ? (
+                    <Text>Create initial state first</Text>
+                  ) : null}
+
+                  {/* Initial Dropdown modal */}
+                  <Modal visible={showInitial} transparent animationType="fade">
+                    <Pressable
+                      style={styles.modalOverlay}
+                      onPress={() => setShowInitial(false)}
+                    >
+                      <View style={styles.dropdown}>
+                        {initialState?.map((item) => (
+                          <Pressable
+                            key={item._id}
+                            style={styles.dropdownItem}
+                            onPress={() => {
+                              setCigaretteState(item._id);
+                              setShowInitial(false);
+                            }}
+                          >
+                            <Text>Nicotine: {item.nicotine_evaluation}</Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    </Pressable>
+                  </Modal>
+                </>
+              ) : null}
+
+              {/* Process stage */}
+              {isEdit ? (
+                <>
+                  <Text style={styles.label}>Process stage</Text>
+                  <View style={{ padding: 5 }}>
+                    <FlatList
+                      data={process}
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      keyExtractor={(item, index) => index.toString()}
+                      renderItem={({ item, index }) => (
+                        <View
+                          style={{ marginHorizontal: 8, alignItems: "center" }}
+                        >
+                          <TouchableOpacity
+                            style={styles.stageItem}
+                            onPress={() =>
+                              setOpenedIndex((prev) =>
+                                prev === index ? null : index
+                              )
+                            }
+                          >
+                            <Text style={styles.stageText}>
+                              Stage {index + 1}
+                            </Text>
+                          </TouchableOpacity>
+
+                          {openedIndex === index && (
+                            <View style={styles.detailBox}>
+                              <Text>
+                                Start:{" "}
+                                {moment(item.start_time).format("DD/MM/YYYY")}
+                              </Text>
+                              <Text>
+                                End:{" "}
+                                {moment(item.end_time).format("DD/MM/YYYY")}
+                              </Text>
+                              <Text>
+                                Expected Result: {item.expected_result}
+                              </Text>
+                              <View style={{ flexDirection: "row" }}>
+                                <Text>Completed:</Text>
+                                {item.isCompleted ? (
+                                  <Ionicons
+                                    name="checkmark"
+                                    size={20}
+                                    color="green"
+                                  />
+                                ) : (
+                                  <Ionicons
+                                    name="close-outline"
+                                    size={20}
+                                    color="red"
+                                  />
+                                )}
+                              </View>
+                              <View>
+                                {/* <TouchableOpacity
+                                  onPress={() => setOpenedIndex(null)}
+                                >
+                                  <Text
+                                    style={{ color: "#4C9EEB", marginTop: 5 }}
+                                  >
+                                    Close
+                                  </Text>
+                                </TouchableOpacity> */}
+                                <TouchableOpacity
+                                  style={{
+                                    backgroundColor: "#c7807b",
+                                    borderBottomLeftRadius: 8,
+                                    borderBottomRightRadius: 8,
+                                    marginHorizontal: -10,
+                                    marginBottom: -5,
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    padding: 5,
+                                  }}
+                                  onPress={() => checkCompleteStage(item)}
+                                >
+                                  <Text style={{ color: "white" }}>
+                                    Check compete
+                                  </Text>
+                                </TouchableOpacity>
+                              </View>
+                            </View>
+                          )}
+                        </View>
+                      )}
+                    />
+                  </View>
+                </>
+              ) : null}
+
+              {/* <Pressable
                 style={styles.dropdownButton}
                 onPress={() => setShowProcessDropdown(true)}
               >
                 <Text style={styles.dropdownButtonText}>
-                  {processOptions.find((item) => item.value === process)?.label ||
-                    "Select"}
+                  {processOptions.find((item) => item.value === process)
+                    ?.label || "Select"}
                 </Text>
-              </Pressable>
+              </Pressable> */}
 
               {/* Dropdown modal */}
-              <Modal
+              {/* <Modal
                 visible={showProcessDropdown}
                 transparent
                 animationType="fade"
@@ -458,7 +636,9 @@ export default function PlanScreen() {
                     ))}
                   </View>
                 </Pressable>
-              </Modal>
+              </Modal> */}
+
+              {/* Start date */}
               <Text style={styles.label}>Start date</Text>
               <Pressable
                 style={styles.datePicker}
@@ -485,32 +665,38 @@ export default function PlanScreen() {
                 />
               )}
 
-              <Text style={styles.label}>End date</Text>
-              <Pressable
-                style={styles.datePicker}
-                onPress={() => setShowExpect(true)}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    gap: 5,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text>{moment(expectDate).format("DD/MM/YYYY")}</Text>
-                  <Ionicons name="calendar-sharp" size={24} color="black" />
-                </View>
-              </Pressable>
-              {showExpect && (
+              {isEdit ? (
+                <>
+                  <Text style={styles.label}>End date</Text>
+                  <Pressable
+                    style={styles.datePicker}
+                    onPress={() => setShowExpect(true)}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        gap: 5,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text>{moment(expectDate).format("DD/MM/YYYY")}</Text>
+                      <Ionicons name="calendar-sharp" size={24} color="black" />
+                    </View>
+                  </Pressable>
+                </>
+              ) : null}
+
+              {/* {showExpect && (
                 <DateTimePicker
                   mode="date"
                   minimumDate={startDate}
                   value={expectDate}
                   onChange={onChangeExpectDate}
                 />
-              )}
+              )} */}
 
+              {/* Create / Save / Cancel */}
               <View style={styles.bttn}>
                 <Pressable
                   style={styles.cancel}
@@ -539,7 +725,6 @@ export default function PlanScreen() {
       {isLoad ? (
         <ActivityIndicator size="large" color="#007AFF" />
       ) : (
-        // Plan list
         <FlatList
           data={planList}
           keyExtractor={(item) => item._id}
@@ -549,12 +734,21 @@ export default function PlanScreen() {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
           ListFooterComponent={
-            <Pagination
-              page={pageNum}
-              totalPage={totalPage}
-              onNextPage={handleNextPage}
-              onPrevPage={handlePrevPage}
-            />
+            planList && planList.length > 0 ? (
+              <Pagination
+                page={pageNum}
+                totalPage={totalPage}
+                onNextPage={handleNextPage}
+                onPrevPage={handlePrevPage}
+              />
+            ) : null
+          }
+          ListEmptyComponent={
+            <View style={{ alignItems: "center", marginTop: 20 }}>
+              <Text style={{ color: "#666", fontSize: 16 }}>
+                No plans found
+              </Text>
+            </View>
           }
         />
       )}
@@ -739,13 +933,30 @@ const styles = StyleSheet.create({
     borderBottomColor: "#eee",
   },
   sortButton: {
-  padding: 5,
-  backgroundColor: "purple",
-  borderRadius: 5,
-  width: "auto",
-  flexDirection: "row",
-  justifyContent: "center",
-  alignItems: "center",
-},
-
+    padding: 5,
+    backgroundColor: "purple",
+    borderRadius: 5,
+    width: "auto",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  stageItem: {
+    padding: 10,
+    marginHorizontal: 8,
+    backgroundColor: "#4C9EEB",
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  stageText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  detailBox: {
+    marginTop: 6,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 8,
+    padding: 10,
+    width: 160,
+  },
 });
