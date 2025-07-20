@@ -5,10 +5,11 @@ import Toast from 'react-native-toast-message'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import useOpen from '../../hooks/open/useOpen'
 export default function ProfileUpdate({userInfo, setLoading, onClose, onReload}) {
-  const [address, setAddress] = useState(userInfo?.profile.address)
-  const [age, setAge] = useState(userInfo?.profile.age)
-  const [experience, setExperience] = useState(userInfo?.profile.experience)
-  const [birthdate, setBirthdate] = useState(userInfo?.profile.birthdate ? new Date(userInfo?.profile.birthdate): new Date())
+  const profile = userInfo?.profile || {}
+  const [address, setAddress] = useState(profile.address || '')
+  const [age, setAge] = useState(profile.age?.toString() || '')
+  const [experience, setExperience] = useState(profile.experience || '')
+  const [birthdate, setBirthdate] = useState(profile.birthdate ? new Date(profile.birthdate) : new Date())
   const {isOpen, toggle} = useOpen()
   const handleUpdate = async () => {
       try {
@@ -53,15 +54,15 @@ export default function ProfileUpdate({userInfo, setLoading, onClose, onReload})
   <View style={style.container}>
         <View style={style.inputContainer}>
               <Text style={style.label}>Address</Text>
-              <TextInput style={style.input} defaultValue={userInfo?.profile.address} onChangeText={(text) => setAddress(text)}/>
+              <TextInput style={style.input} defaultValue={address} onChangeText={(text) => setAddress(text)}/>
         </View>
         <View style={style.inputContainer}>
               <Text style={style.label}>Age</Text>
-              <TextInput style={style.input} defaultValue={userInfo?.profile.age.toString()} onChangeText={(text) => setAge(text)}/>
+              <TextInput style={style.input} defaultValue={age} onChangeText={(text) => setAge(text)}/>
         </View>
         <View style={style.inputContainer}>
-              <Text style={style.label}>Fullname</Text>
-              <TextInput style={style.input} defaultValue={userInfo?.profile.experience} onChangeText={(text) => setExperience(text)}/>
+              <Text style={style.label}>Experience</Text>
+              <TextInput style={style.input} defaultValue={experience} onChangeText={(text) => setExperience(text)}/>
         </View>
         <View>
               <Text style={style.label}>Birthdate</Text>

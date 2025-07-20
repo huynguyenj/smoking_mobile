@@ -84,6 +84,7 @@ export default function BlogDetailPopup({ visible, onClose, blog }) {
       const res = await privateApiService.createComment(blog._id, {
         content: newComment,
       });
+      fetchComments()
 
       if (!res.data?.userInfo) {
         await resetComments();

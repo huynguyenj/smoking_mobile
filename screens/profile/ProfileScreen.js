@@ -127,25 +127,25 @@ return (
           <View style={profileStyle.profileInfoContainer}>
             <Entypo name="address" size={24} color="black" />
               <Text style={profileStyle.textProfile}>
-                Address: {userInfo.profile.address? userInfo.profile.address : 'Update your address'}
+                Address: {userInfo?.profile.address? userInfo.profile.address : 'Update your address'}
               </Text>
           </View>
            <View style={profileStyle.profileInfoContainer}>
             <FontAwesome name="birthday-cake" size={24} color="black" />
               <Text style={profileStyle.textProfile}>
-                Birthdate: {userInfo.profile.birthdate?  formDate(userInfo.profile.birthdate): 'Update your birthdate'}
+                Birthdate: {userInfo?.profile.birthdate?  formDate(userInfo.profile.birthdate): 'Update your birthdate'}
               </Text>
           </View>
            <View style={profileStyle.profileInfoContainer}>
             <AntDesign name="user" size={24} color="black" />
               <Text style={profileStyle.textProfile}>
-                Age: {userInfo.profile.age? `${userInfo.profile.age} years old` : 'Update your age'}
+                Age: {userInfo?.profile.age? `${userInfo.profile.age} years old` : 'Update your age'}
               </Text>
           </View>
             <View style={profileStyle.profileInfoContainer}>
             <FontAwesome6 name="person-chalkboard" size={24} color="black" />
               <Text style={profileStyle.textProfile}>
-                Experience: {userInfo.profile.experience? userInfo.profile.experience : 'Update your experience'}
+                Experience: {userInfo?.profile.experience? userInfo.profile.experience : 'Update your experience'}
               </Text>
           </View>
         </View>
