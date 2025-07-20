@@ -36,7 +36,7 @@ const privateApiService = {
       limit,
       sort
     }),
-
+  getAllPlanOfUser: () => apiService.privateApiClient.get('/v1/users/plan'),
   getPlanDetail: (id) =>
     apiService.privateApiClient.get(`/v1/users/plan/edit/${id}`),
 
