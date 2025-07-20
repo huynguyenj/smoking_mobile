@@ -5,14 +5,14 @@ export default function CigaretteCard({
   onViewDetail,
   onUpdate,
   onDelete,
+  plans,
 }) {
   const {
-    amount,
     smoking_frequency_per_day,
     money_consumption_per_day,
-    nicotine_evaluation,
     saving_money,
     create_date,
+    plan_id,
   } = data;
 
   const formatDate = (timestamp) => {
@@ -21,14 +21,11 @@ export default function CigaretteCard({
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   };
 
+  const planName = plans?.find((plan) => plan._id === plan_id)?.content || "—";
+
   return (
     <View style={styles.card}>
       <Text style={styles.title}>Cigarette Record</Text>
-
-      <View style={styles.row}>
-        <Text style={styles.label}>Amount:</Text>
-        <Text style={styles.value}>{amount} cigarettes</Text>
-      </View>
 
       <View style={styles.row}>
         <Text style={styles.label}>Frequency per day:</Text>
@@ -36,16 +33,9 @@ export default function CigaretteCard({
       </View>
 
       <View style={styles.row}>
-        <Text style={styles.label}>Cost/day:</Text>
+        <Text style={styles.label}>Cost per day:</Text>
         <Text style={styles.value}>
           {money_consumption_per_day.toLocaleString()} đ
-        </Text>
-      </View>
-
-      <View style={styles.row}>
-        <Text style={styles.label}>Nicotine level:</Text>
-        <Text style={[styles.value, { color: "#d9534f" }]}>
-          {nicotine_evaluation}/10
         </Text>
       </View>
 
@@ -61,7 +51,12 @@ export default function CigaretteCard({
         <Text style={styles.value}>{formatDate(create_date)}</Text>
       </View>
 
-      {/* Action buttons */}
+      <View style={styles.row}>
+        <Text style={styles.label}>Plan:</Text>
+        <Text style={styles.value}>{planName}</Text>
+      </View>
+
+      {/* Buttons */}
       <View style={styles.actions}>
         <TouchableOpacity
           style={[styles.button, styles.detailBtn]}

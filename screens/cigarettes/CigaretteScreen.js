@@ -29,7 +29,7 @@ export default function CigaretteScreen() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [showUpdatePopup, setShowUpdatePopup] = useState(false);
-
+  const [plans, setPlans] = useState([]);
   // Lấy danh sách
   const fetchCigarettes = async (pageToLoad = 1) => {
     if (pageToLoad !== 1 && (loadingMore || !hasMore)) return;
@@ -50,6 +50,18 @@ export default function CigaretteScreen() {
     } finally {
       setLoading(false);
       setLoadingMore(false);
+    }
+  };
+
+  const fetchPlans = async () => {
+    try {
+      const res = await privateApiService.getAllPlans(1, 50, -1);
+      console.log("👉 Plan raw data:", res?.data?.listData); // 🧪 debug
+      if (res?.data?.listData) {
+        setPlans(res.data.listData);
+      }
+    } catch (err) {
+      console.error("❌ Lỗi lấy danh sách kế hoạch:", err.message || err);
     }
   };
 
@@ -152,12 +164,19 @@ export default function CigaretteScreen() {
     }
   };
 
-  useFocusEffect(useCallback(() => {
-    setCigarettes([]);
-    setPage(1);
-    setHasMore(true);
-    fetchCigarettes(1);
-  }, []))
+  useFocusEffect(
+    useCallback(() => {
+      setCigarettes([]);
+      setPage(1);
+      setHasMore(true);
+      fetchCigarettes(1);
+      fetchPlans();
+    }, [])
+  );
+
+  useEffect(() => {
+    console.log("📦 Plans:", plans);
+  }, [plans]);
 
   const handleEndReached = () => {
     if (hasMore && !loadingMore) {
@@ -198,6 +217,7 @@ export default function CigaretteScreen() {
               onViewDetail={() => handleViewDetail(item)}
               onUpdate={() => openUpdatePopup(item)}
               onDelete={() => handleDelete(item._id)}
+              plans={plans}
             />
           )}
           contentContainerStyle={styles.container}
@@ -215,6 +235,7 @@ export default function CigaretteScreen() {
         visible={showCreatePopup}
         onClose={() => setShowCreatePopup(false)}
         onSubmit={handleCreate}
+        plans={plans}
       />
       {showDetailPopup && selectedItem && (
         <CigaretteDetailPopup
@@ -222,6 +243,7 @@ export default function CigaretteScreen() {
           onClose={() => setShowDetailPopup(false)}
           data={selectedItem}
           loading={loadingDetail}
+          plans={plans}
         />
       )}
       <UpdateCigarettePopup

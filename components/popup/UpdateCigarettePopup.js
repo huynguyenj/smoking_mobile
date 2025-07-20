@@ -14,7 +14,6 @@ import {
   Keyboard,
   Pressable,
 } from "react-native";
-import QuizPopup from "./QuizPopup";
 
 export default function UpdateCigarettePopup({
   visible,
@@ -22,33 +21,29 @@ export default function UpdateCigarettePopup({
   onUpdate,
   data,
 }) {
-  const [amount, setAmount] = useState("");
+  const [frequency, setFrequency] = useState("");
   const [money, setMoney] = useState("");
-  const [nicotine, setNicotine] = useState("");
   const [saving, setSaving] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showQuiz, setShowQuiz] = useState(false);
 
   useEffect(() => {
     if (visible && data) {
-      setAmount(data.amount?.toString() || "");
+      setFrequency(data.smoking_frequency_per_day?.toString() || "");
       setMoney(data.money_consumption_per_day?.toString() || "");
-      setNicotine(data.nicotine_evaluation?.toString() || "");
       setSaving(data.saving_money?.toString() || "");
     }
   }, [visible, data]);
 
   const handleSubmit = async () => {
-    if (!amount || !money || !nicotine || !saving) {
+    if (!frequency || !money || !saving) {
       alert("Please fill in all required fields.");
       return;
     }
 
     const formData = {
-      amount: +amount,
-      money_consumption_per_day: +money,
-      nicotine_evaluation: +nicotine,
-      saving_money: +saving,
+      smoking_frequency_per_day: Number(frequency),
+      money_consumption_per_day: Number(money),
+      saving_money: Number(saving),
     };
 
     setLoading(true);
@@ -72,14 +67,14 @@ export default function UpdateCigarettePopup({
             behavior={Platform.OS === "ios" ? "padding" : undefined}
           >
             <ScrollView contentContainerStyle={styles.container}>
-              <Text style={styles.title}>📝 Update Cigarette Record</Text>
+              <Text style={styles.title}>Update Cigarette Record</Text>
 
-              <Text style={styles.label}>Number of cigarettes smoked *</Text>
+              <Text style={styles.label}>Smoking frequency per day *</Text>
               <TextInput
-                placeholder="e.g., 15"
+                placeholder="e.g., 3"
                 keyboardType="numeric"
-                value={amount}
-                onChangeText={setAmount}
+                value={frequency}
+                onChangeText={setFrequency}
                 style={styles.input}
               />
 
@@ -93,19 +88,6 @@ export default function UpdateCigarettePopup({
                 onChangeText={setMoney}
                 style={styles.input}
               />
-
-              <Text style={styles.label}>Nicotine level (0 - 10) *</Text>
-              <TouchableOpacity
-                onPress={() => setShowQuiz(true)}
-                style={[
-                  styles.input,
-                  { justifyContent: "center", backgroundColor: "#f0f0f0" },
-                ]}
-              >
-                <Text style={{ color: nicotine ? "#000" : "#999" }}>
-                  {nicotine ? `Score: ${nicotine}` : "Tap to evaluate via quiz"}
-                </Text>
-              </TouchableOpacity>
 
               <Text style={styles.label}>Estimated money saved (VND) *</Text>
               <TextInput
@@ -131,16 +113,6 @@ export default function UpdateCigarettePopup({
               <TouchableOpacity onPress={onClose} style={{ marginTop: 12 }}>
                 <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
-              {showQuiz && (
-                <QuizPopup
-                  visible={showQuiz}
-                  onClose={() => setShowQuiz(false)}
-                  onResult={(score) => {
-                    setNicotine(score.toString());
-                    setShowQuiz(false);
-                  }}
-                />
-              )}
             </ScrollView>
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>

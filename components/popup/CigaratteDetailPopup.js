@@ -14,12 +14,16 @@ export default function CigaretteDetailPopup({
   onClose,
   data,
   loading,
+  plans,
 }) {
   const formatDate = (timestamp) => {
-    if (!timestamp) return "No date";
+    if (!timestamp) return "—";
     const date = new Date(timestamp);
     return date.toLocaleString();
   };
+
+  const planName =
+    plans?.find((plan) => plan._id === data.plan_id)?.content || "—";
 
   return (
     <Modal visible={visible} transparent animationType="fade">
@@ -38,7 +42,7 @@ export default function CigaretteDetailPopup({
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#28a745" />
               <Text style={{ marginTop: 12, color: "#666" }}>
-                Đang tải dữ liệu...
+                Loading data...
               </Text>
             </View>
           ) : (
@@ -48,33 +52,40 @@ export default function CigaretteDetailPopup({
                 <Text style={[styles.sectionTitle, { color: "#007bff" }]}>
                   🪣 Cigarette Information
                 </Text>
-                <Text style={styles.itemText}>
-                  🔥 <Text style={styles.bold}>Amount:</Text> {data.amount}{" "}
-                  cigarettes
-                </Text>
-                <Text style={styles.itemText}>
-                  ⏱️ <Text style={styles.bold}>Per Day:</Text>{" "}
-                  {data.smoking_frequency_per_day} times
-                </Text>
-                <Text style={styles.itemText}>
-                  💰 <Text style={styles.bold}>Cost/Day:</Text>{" "}
-                  {data.money_consumption_per_day.toLocaleString()} VND
-                </Text>
-                <Text style={styles.itemText}>
-                  🪙 <Text style={styles.bold}>Money Saved:</Text>{" "}
-                  {data.saving_money.toLocaleString()} VND
-                </Text>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Frequency per day:</Text>
+                  <Text style={styles.value}>
+                    {data.smoking_frequency_per_day} times
+                  </Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Cost per day:</Text>
+                  <Text style={styles.value}>
+                    {data.money_consumption_per_day?.toLocaleString()} đ
+                  </Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Money saved:</Text>
+                  <Text
+                    style={[
+                      styles.value,
+                      { color: "#28a745", fontWeight: "bold" },
+                    ]}
+                  >
+                    {data.saving_money?.toLocaleString()} đ
+                  </Text>
+                </View>
               </View>
 
-              {/* Section: Nicotine */}
+              {/* Section: Plan */}
               <View style={[styles.section, { backgroundColor: "#f6f0ff" }]}>
                 <Text style={[styles.sectionTitle, { color: "#a020f0" }]}>
-                  🧪 Nicotine Evaluation
+                  📋 Related Plan
                 </Text>
-                <Text style={styles.itemText}>
-                  📊 <Text style={styles.bold}>Score:</Text>{" "}
-                  {data.nicotine_evaluation}/10
-                </Text>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Plan:</Text>
+                  <Text style={styles.value}>{planName}</Text>
+                </View>
               </View>
 
               {/* Section: Time */}
@@ -82,13 +93,20 @@ export default function CigaretteDetailPopup({
                 <Text style={[styles.sectionTitle, { color: "#28a745" }]}>
                   ⏰ Time
                 </Text>
-                <Text style={styles.itemText}>
-                  🗓️ <Text style={styles.bold}>Created:</Text>{" "}
-                  {formatDate(data.create_date)}
-                </Text>
-                <Text style={styles.itemText}>
-                  📆 <Text style={styles.bold}>No Smoke Date:</Text> No date
-                </Text>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Created:</Text>
+                  <Text style={styles.value}>
+                    {formatDate(data.create_date)}
+                  </Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Updated:</Text>
+                  <Text style={styles.value}>
+                    {data.update_date
+                      ? formatDate(data.update_date)
+                      : "No update yet"}
+                  </Text>
+                </View>
               </View>
 
               {/* Section: Status */}
@@ -96,12 +114,16 @@ export default function CigaretteDetailPopup({
                 <Text style={[styles.sectionTitle, { color: "#dc3545" }]}>
                   📌 Status
                 </Text>
-                <Text style={styles.itemText}>
-                  ✅{" "}
-                  <Text style={[styles.bold, { color: "#28a745" }]}>
-                    Active
+                <View style={styles.row}>
+                  <Text style={styles.label}>Record:</Text>
+                  <Text style={styles.value}>
+                    {data.isDeleted ? (
+                      <Text style={{ color: "gray" }}>Deleted</Text>
+                    ) : (
+                      <Text style={{ color: "#28a745" }}>Active</Text>
+                    )}
                   </Text>
-                </Text>
+                </View>
               </View>
             </>
           )}
@@ -152,13 +174,20 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 8,
   },
-  itemText: {
-    fontSize: 14,
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 6,
-    color: "#333",
   },
-  bold: {
-    fontWeight: "600",
+  label: {
+    color: "#555",
+    fontSize: 14,
+  },
+  value: {
+    fontSize: 14,
+    fontWeight: "500",
+    maxWidth: "60%",
+    textAlign: "right",
   },
   loadingContainer: {
     paddingVertical: 40,

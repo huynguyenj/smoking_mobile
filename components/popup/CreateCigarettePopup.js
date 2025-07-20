@@ -13,20 +13,24 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
-import QuizPopup from "./QuizPopup";
+import { Picker } from "@react-native-picker/picker";
 
-export default function CreateCigarettePopup({ visible, onClose, onSubmit }) {
-  const [amount, setAmount] = useState("");
+export default function CreateCigarettePopup({
+  visible,
+  onClose,
+  onSubmit,
+  plans,
+}) {
   const [frequency, setFrequency] = useState("");
   const [money, setMoney] = useState("");
-  const [nicotine, setNicotine] = useState("");
   const [saving, setSaving] = useState("");
+  const [planId, setPlanId] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showQuiz, setShowQuiz] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
 
   const handleSubmit = async () => {
-    const isValid = amount && frequency && money && nicotine !== "" && saving;
+    const isValid =
+      frequency !== "" && money !== "" && saving !== "" && planId !== "";
 
     if (!isValid) {
       setShowErrors(true);
@@ -37,18 +41,17 @@ export default function CreateCigarettePopup({ visible, onClose, onSubmit }) {
     setLoading(true);
     try {
       await onSubmit({
-        amount: parseInt(amount),
         smoking_frequency_per_day: parseInt(frequency),
         money_consumption_per_day: parseInt(money),
-        nicotine_evaluation: parseInt(nicotine),
         saving_money: parseInt(saving),
+        plan_id: planId,
       });
+
       onClose();
-      setAmount("");
       setFrequency("");
       setMoney("");
-      setNicotine("");
       setSaving("");
+      setPlanId("");
       setShowErrors(false);
     } catch (err) {
       alert("Failed to create record");
@@ -66,16 +69,6 @@ export default function CreateCigarettePopup({ visible, onClose, onSubmit }) {
             behavior={Platform.OS === "ios" ? "padding" : "height"}
           >
             <Text style={styles.header}>Create Cigarette Record</Text>
-
-            <Text style={styles.label}>Number of cigarettes smoked *</Text>
-            <TextInput
-              placeholder="e.g., 15"
-              keyboardType="numeric"
-              value={amount}
-              onChangeText={setAmount}
-              style={[styles.input, showErrors && !amount && styles.inputError]}
-              placeholderTextColor="#888"
-            />
 
             <Text style={styles.label}>Smoking frequency per day *</Text>
             <TextInput
@@ -100,22 +93,6 @@ export default function CreateCigarettePopup({ visible, onClose, onSubmit }) {
               placeholderTextColor="#888"
             />
 
-            <Text style={styles.label}>Evaluate nicotine level *</Text>
-            <TouchableOpacity
-              style={[
-                styles.input,
-                styles.quizButton,
-                showErrors && !nicotine && styles.inputError,
-              ]}
-              onPress={() => setShowQuiz(true)}
-            >
-              <Text style={nicotine ? styles.quizText : styles.quizPlaceholder}>
-                {nicotine
-                  ? `Nicotine Level: ${nicotine}/10`
-                  : "Tap to evaluate with Quiz"}
-              </Text>
-            </TouchableOpacity>
-
             <Text style={styles.label}>Estimated money saved (VND) *</Text>
             <TextInput
               placeholder="e.g., 100000"
@@ -125,6 +102,29 @@ export default function CreateCigarettePopup({ visible, onClose, onSubmit }) {
               style={[styles.input, showErrors && !saving && styles.inputError]}
               placeholderTextColor="#888"
             />
+
+            <Text style={styles.label}>Select Related Plan *</Text>
+            <View
+              style={[
+                styles.pickerContainer,
+                showErrors && !planId && styles.inputError,
+              ]}
+            >
+              <Picker
+                selectedValue={planId}
+                onValueChange={(itemValue) => setPlanId(itemValue)}
+                style={styles.picker}
+              >
+                <Picker.Item label="-- Select a plan --" value="" />
+                {plans?.map((plan) => (
+                  <Picker.Item
+                    key={plan._id}
+                    label={plan.content}
+                    value={plan._id}
+                  />
+                ))}
+              </Picker>
+            </View>
 
             <View style={styles.actions}>
               <TouchableOpacity
@@ -147,14 +147,6 @@ export default function CreateCigarettePopup({ visible, onClose, onSubmit }) {
                 )}
               </TouchableOpacity>
             </View>
-
-            {showQuiz && (
-              <QuizPopup
-                visible={showQuiz}
-                onClose={() => setShowQuiz(false)}
-                onResult={(value) => setNicotine(value)}
-              />
-            )}
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
       </Pressable>
@@ -203,6 +195,18 @@ const styles = StyleSheet.create({
   inputError: {
     borderColor: "#dc3545",
   },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 10,
+    marginBottom: 10,
+    backgroundColor: "#fafafa",
+    overflow: "hidden",
+  },
+  picker: {
+    height: 50,
+    width: "100%",
+  },
   actions: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -230,15 +234,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
     fontSize: 15,
-  },
-  quizButton: {
-    justifyContent: "center",
-  },
-  quizPlaceholder: {
-    color: "#888",
-  },
-  quizText: {
-    color: "#222",
-    fontWeight: "600",
   },
 });
