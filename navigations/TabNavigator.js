@@ -81,8 +81,8 @@ export default function TabNavigator() {
       })}
     >
       <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Plan" component={PlanScreen} />
       <Tab.Screen name='State' component={InitialState}/>
+      <Tab.Screen name="Plan" component={PlanScreen} />
       <Tab.Screen name="Cigarettes" component={CigaretteScreen} />
       <Tab.Screen name="Blogs" component={BlogScreen} />
       <Tab.Screen name="Ranking" component={RankScreen} />

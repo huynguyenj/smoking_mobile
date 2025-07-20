@@ -21,6 +21,12 @@ const privateApiService = {
   searchFriend: (searchTerm) =>
     apiService.privateApiClient.post("/v1/users/info", { search: searchTerm }),
 
+  getInitialState: () =>
+    apiService.privateApiClient.get("v1/users/initial-cigarette"),
+
+  checkCompleteStage: (id, payload) =>
+    apiService.privateApiClient.post(`v1/users/plan/edit/${id}`, payload),
+
   createPlan: (payload) =>
     apiService.privateApiClient.post("/v1/users/plan", payload),
 
@@ -133,7 +139,12 @@ const privateApiService = {
   changeAvatar: (avatar) =>
     apiService.privateApiClient.put('v1/users/profile/avatar', avatar),
   getAchievement: () => apiService.privateApiClient.get('/v1/users/achievement'),
-  getUserCurrentRank: () => apiService.privateApiClient.get('/v1/users/rank')
+  getUserCurrentRank: () => apiService.privateApiClient.get('/v1/users/rank'),
+  createInitialState: (data) => apiService.privateApiClient.post('/v1/users/initial-cigarette', data),
+  getInitialStatePagination: (data) => apiService.privateApiClient.post('/v1/users/initial-cigarette/pagination', data),
+  getDetailInitialState: (id) => apiService.privateApiClient.get(`/v1/users/initial-cigarette/edit/${id}`),
+  updateInitialState: (id, data) => apiService.privateApiClient.put(`/v1/users/initial-cigarette/edit/${id}`, data),
+  deleteInitialState: (id) => apiService.privateApiClient.delete(`/v1/users/initial-cigarette/edit/${id}`) 
 }
 
 export default privateApiService;

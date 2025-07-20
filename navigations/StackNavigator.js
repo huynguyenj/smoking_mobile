@@ -5,6 +5,7 @@ import LoginScreen from '../screens/auth/LoginScreen'
 import RegisterScreen from '../screens/auth/RegisterScreen'
 import { useUserInfoStorage } from '../store/authStore'
 import FriendChatScreen from '../screens/message/FriendChatScreen'
+import InitialStateDetail from '../screens/initial-state/InitialStateDetail'
 const Stack = createNativeStackNavigator()
 export default function StackNavigator() {
   const token = useUserInfoStorage((state) => state.token)
@@ -14,6 +15,7 @@ export default function StackNavigator() {
       <>
       <Stack.Screen options={{headerShown: false}} name='MainScreen' component={TabNavigator}/>
       <Stack.Screen options={{headerShown: false}} name='Friend' component={FriendChatScreen}/>
+      <Stack.Screen options={{headerShown: false}} name='InitialDetail' component={InitialStateDetail}/>
       </>
       
       :
